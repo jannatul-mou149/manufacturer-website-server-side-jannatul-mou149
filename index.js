@@ -17,6 +17,13 @@ async function run() {
     try {
         await client.connect();
         const productCollection = client.db('dream_pc_build').collection('products');
+        //loading all products
+        app.get('/products', async (req, res) => {
+            const query = {};
+            const cursor = productCollection.find(query);
+            const products = await cursor.toArray();
+            res.send(products);
+        });
     }
     finally {
 
