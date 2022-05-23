@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -17,6 +18,7 @@ async function run() {
     try {
         await client.connect();
         const productCollection = client.db('dream_pc_build').collection('products');
+        const userCollection = client.db('dream_pc_build').collection('users');
         //loading all products
         app.get('/products', async (req, res) => {
             const query = {};
@@ -24,6 +26,27 @@ async function run() {
             const products = await cursor.toArray();
             res.send(products);
         });
+        //find products by id
+        app.get('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const productQuery = { _id: ObjectId(id) };
+            console.log(productQuery);
+            const product = await productCollection.findOne(productQuery);
+            res.send(product);
+        })
+        //users
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: user,
+            };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+            res.send({ result, token });
+        })
     }
     finally {
 
