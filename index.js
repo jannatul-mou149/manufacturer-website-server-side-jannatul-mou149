@@ -34,6 +34,7 @@ async function run() {
         await client.connect();
         const productCollection = client.db('dream_pc_build').collection('products');
         const userCollection = client.db('dream_pc_build').collection('users');
+        const reviewCollection = client.db('dream_pc_build').collection('reviews');
         //loading all products
         app.get('/products', async (req, res) => {
             const query = {};
@@ -67,6 +68,20 @@ async function run() {
             const result = await userCollection.updateOne(filter, updateDoc, options);
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
             res.send({ result, token });
+        })
+        //loading all reviews
+        app.get('/reviews', async (req, res) => {
+            const query = {};
+            const cursor = reviewCollection.find(query).sort({ _id: -1 });
+            const reviews = await cursor.toArray();
+            res.send(reviews);
+        });
+
+        //add new review
+        app.post('/reviews', async (req, res) => {
+            const newItem = req.body;
+            const result = await reviewCollection.insertOne(newItem);
+            res.send(result);
         })
 
         app.get('/user', async (req, res) => {
