@@ -41,6 +41,12 @@ async function run() {
             const products = await cursor.toArray();
             res.send(products);
         });
+        //add new product
+        app.post('/products', async (req, res) => {
+            const newItem = req.body;
+            const result = await productCollection.insertOne(newItem);
+            res.send(result);
+        })
         //find products by id
         app.get('/products/:id', async (req, res) => {
             const id = req.params.id;
@@ -67,6 +73,14 @@ async function run() {
             const users = await userCollection.find().toArray();
             res.send(users);
         })
+
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin })
+        })
+
         //make admin
         app.put('/user/admin/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
