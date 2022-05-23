@@ -37,7 +37,7 @@ async function run() {
         //loading all products
         app.get('/products', async (req, res) => {
             const query = {};
-            const cursor = productCollection.find(query);
+            const cursor = productCollection.find(query).sort({ _id: -1 });
             const products = await cursor.toArray();
             res.send(products);
         });
