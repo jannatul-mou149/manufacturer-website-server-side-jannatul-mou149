@@ -33,6 +33,7 @@ async function run() {
     try {
         await client.connect();
         const productCollection = client.db('dream_pc_build').collection('products');
+        const orderCollection = client.db('dream_pc_build').collection('orders');
         const userCollection = client.db('dream_pc_build').collection('users');
         const reviewCollection = client.db('dream_pc_build').collection('reviews');
         //loading all products
@@ -41,6 +42,12 @@ async function run() {
             const cursor = productCollection.find(query).sort({ _id: -1 });
             const products = await cursor.toArray();
             res.send(products);
+        });
+        //order a product
+        app.post('/new-order', async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.send(result);
         });
         //add new product
         app.post('/products', async (req, res) => {
