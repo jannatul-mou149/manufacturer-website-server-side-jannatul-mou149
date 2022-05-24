@@ -37,6 +37,7 @@ async function run() {
         const orderCollection = client.db('dream_pc_build').collection('orders');
         const userCollection = client.db('dream_pc_build').collection('users');
         const reviewCollection = client.db('dream_pc_build').collection('reviews');
+        const paymentCollection = client.db('dream_pc_build').collection('payments');
         //loading all products
         app.get('/products', async (req, res) => {
             const query = {};
@@ -50,6 +51,22 @@ async function run() {
             const result = await orderCollection.insertOne(order);
             res.send(result);
         });
+        //update order info after payment
+        app.patch('/new-order/:id', async (req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    paid: true,
+                    transactionId: payment.transactionId
+                }
+            }
+            const result = await paymentCollection.insertOne(payment);
+            const updatedOrder = await orderCollection.updateOne(filter, updatedDoc);
+
+            res.send(updatedDoc);
+        })
         //my orders
         app.get('/new-order', async (req, res) => {
             const email = req.query.email;
