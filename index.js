@@ -80,6 +80,19 @@ async function run() {
             const orders = await orderCollection.find(query).toArray();
             res.send(orders);
         });
+        //update pending status
+        app.put('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const query = { _id: ObjectId(id) };
+            const options = { upsert: true }
+            const updateDoc = {
+                $set: { status: true },
+            }
+            const result = await orderCollection.updateOne(query, updateDoc, options)
+
+            res.send(result);
+        })
         //delete a order
         app.delete('/new-order/:id', async (req, res) => {
             const id = req.params.id;
