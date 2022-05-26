@@ -74,6 +74,12 @@ async function run() {
             const orders = await orderCollection.find(query).toArray();
             res.send(orders);
         });
+        //all orders
+        app.get('/orders', async (req, res) => {
+            const query = {};
+            const orders = await orderCollection.find(query).toArray();
+            res.send(orders);
+        });
         //delete a order
         app.delete('/new-order/:id', async (req, res) => {
             const id = req.params.id;
@@ -159,6 +165,14 @@ async function run() {
             const user = await userCollection.findOne({ email: email });
             const isAdmin = user.role === 'admin';
             res.send({ admin: isAdmin })
+        })
+        //user profile edit
+        app.get('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            console.log(email);
+            const query = { email: email };
+            const user = await userCollection.findOne(query);
+            res.send(user);
         })
 
         //make admin
